@@ -1,0 +1,12 @@
+{
+    "name": "tigron/skeleton-migrate",
+    "description": "Database migration for Skeleton",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tigron BVBA",
+            "email": "support@tigron.be"
+        }
+    ]
+}
