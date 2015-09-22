@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Migrate_Up extends \Skeleton\Console\Command {
+class Migrate_Status extends \Skeleton\Console\Command {
 
 	/**
 	 * Configure the Create command
@@ -22,8 +22,8 @@ class Migrate_Up extends \Skeleton\Console\Command {
 	 * @access protected
 	 */
 	protected function configure() {
-		$this->setName('migrate:up');
-		$this->setDescription('Update the database with all existing migrations');
+		$this->setName('migrate:status');
+		$this->setDescription('Check if there are migrations that are not executed yet');
 	}
 
 	/**
@@ -38,13 +38,16 @@ class Migrate_Up extends \Skeleton\Console\Command {
 			$output->writeln('<error>Config::$migration_directory is not set to a valid directory</error>');
 			return 1;
 		}
-		$return = \Skeleton\Database\Migration\Runner::up($log);
 
-		$output->writeln($log);
-		if ($return == 0) {
-			$output->writeln('Database up-to-date' );
-			return 0;
+		$migrations = \Skeleton\Database\Migration::get_between_versions(\Skeleton\Database\Migration\Runner::get_version(), null);
+		if (count($migrations) > 0) {
+			$output->writeln('There are ' . count($migrations) . ' outstanding migrations:');
+			foreach ($migrations as $migration) {
+				$output->writeln("\t" . get_class($migration));
+			}
+		} else {
+			$output->writeln('Database is up-to-date');
 		}
-		return 1;
+		return 0;
 	}
 }
