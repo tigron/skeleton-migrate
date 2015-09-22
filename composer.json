@@ -2,6 +2,9 @@
     "name": "tigron/skeleton-migrate",
     "description": "Database migration for Skeleton",
     "type": "library",
+    "require": {
+		"symfony/console": "*"
+    },
     "license": "MIT",
     "authors": [
         {
@@ -11,5 +14,5 @@
     ],
     "autoload": {
         "psr-4": { "Skeleton\\Database\\": "lib/Skeleton/Database/" }
-    }    
+    }
 }
