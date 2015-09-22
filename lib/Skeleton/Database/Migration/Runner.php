@@ -48,17 +48,50 @@ class Runner {
 				continue;
 			}
 
-			if (!preg_match("^\d{8}_\d{6}_.*$", $file)) {
+			if (!preg_match("/^\d{8}_\d{6}_.*$/", $file)) {
 				unset($files[$key]);
 				continue;
 			}
 
 			list($date, $time, $name) = explode('_', $file);
-
 			$datetime = \Datetime::createFromFormat('Ymd His', $date . ' ' . $time);
 
-			$interval = $datetime->diff($database_version);
+			if ($database_version !== false) {
+				$interval = $datetime->diff($database_version);
+			}
 		}
+
+		return self::run($files);
+	}
+
+	/**
+	 * Run
+	 *
+	 * @access private
+	 * @param array $filenames
+	 */
+	private static function run($filenames = []) {
+		$log = '';
+		$log .= 'Running migrations' . "\n";
+		foreach ($filenames as $filename) {
+			$log .= "\t" . $filename . ': ' . "\t";
+			$parts = explode('_', $filename);
+			foreach ($parts as $key => $part) {
+				$parts[$key] = ucfirst($part);
+			}
+
+			$classname = 'Migration_' . str_replace('.php', '', implode('_', $parts));
+			include Config::$migration_directory . '/' . $filename;
+			$migration = new $classname();
+
+			try {
+				$migration->up();
+				$log .= '<info>ok</info>';
+			} catch (Exception $e) {
+				$log .= '<error>error</error>';
+			}
+		}
+		return $log;
 	}
 
 }
