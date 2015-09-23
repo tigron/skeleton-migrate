@@ -27,7 +27,7 @@ class Migration {
 	/**
 	 * Run
 	 *
-	 $ @access public
+	 * @access public
 	 * @param string up/down
 	 */
 	public function run($method) {
