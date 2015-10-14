@@ -47,7 +47,7 @@ class Runner {
 			touch(Config::$migration_directory . '/db_version');
 		}
 
-		$current_version = file_get_contents(Config::$migration_directory . '/db_version');
+		$current_version = trim(file_get_contents(Config::$migration_directory . '/db_version'));
 		if (empty($current_version)) {
 			return null;
 		}
