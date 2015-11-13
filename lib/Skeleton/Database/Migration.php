@@ -65,6 +65,24 @@ class Migration {
 	}
 
 	/**
+	 * Get specific version
+	 *
+	 * @access public
+	 * @param string $version
+	 * @return Migration
+	 */
+	public static function get_by_version($version) {
+		$migrations = self::get_all();
+		foreach ($migrations as $key => $migration) {
+			if ($migration->get_version()->format('Ymd_His') == $version) {
+				return $migration;
+			}
+		}
+
+		throw new \Exception('The specified version does not exists.');
+	}
+
+	/**
 	 * Get all migrations
 	 *
 	 * @access public
