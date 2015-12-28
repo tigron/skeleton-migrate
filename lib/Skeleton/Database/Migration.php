@@ -126,7 +126,7 @@ class Migration {
 			}
 
 			$classname = 'Migration_' . str_replace('.php', '', implode('_', $parts));
-			include Config::$migration_directory . '/' . $file;
+			include_once Config::$migration_directory . '/' . $file;
 			$migrations[] = new $classname();
 		}
 		return $migrations;

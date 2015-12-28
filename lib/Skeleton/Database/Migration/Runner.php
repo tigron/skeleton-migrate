@@ -13,30 +13,6 @@ namespace Skeleton\Database\Migration;
 class Runner {
 
 	/**
-	 * Up
-	 *
-	 * @access public
-	 */
-	public static function up(&$log) {
-		$migrations = \Skeleton\Database\Migration::get_between_versions(self::get_version(), null);
-
-		$log = '';
-		$log .= 'Running migrations' . "\n";
-		foreach ($migrations as $migration) {
-			$log .= "\t" . get_class($migration) . ': ' . "\t";
-			try {
-				$migration->run('up');
-				$log .= '<info>ok</info>';
-			} catch (Exception $e) {
-				$log .= '<error>' . $e->getMessage() . '</error>';
-				return 1;
-			}
-			$log .= "\n";
-		}
-		return 0;
-	}
-
-	/**
 	 * Get current version
 	 *
 	 * @access private
@@ -53,5 +29,16 @@ class Runner {
 		}
 
 		return \DateTime::createFromFormat('Ymd His', $current_version);
+	}
+
+	/**
+	 * Get runnable
+	 *
+	 * @access public
+	 * @return array $migrations
+	 */
+	public static function get_runnable() {
+		$migrations = \Skeleton\Database\Migration::get_between_versions(self::get_version(), null);
+		return $migrations;
 	}
 }

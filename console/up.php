@@ -38,13 +38,27 @@ class Migrate_Up extends \Skeleton\Console\Command {
 			$output->writeln('<error>Config::$migration_directory is not set to a valid directory</error>');
 			return 1;
 		}
-		$return = \Skeleton\Database\Migration\Runner::up($log);
 
-		$output->writeln($log);
-		if ($return == 0) {
+		$output->writeln('Running migrations');
+
+		$migrations = \Skeleton\Database\Migration\Runner::get_runnable();
+
+		if (count($migrations) == 0) {
 			$output->writeln('Database up-to-date' );
-			return 0;
+			return 1;
 		}
+
+		foreach ($migrations as $migration) {
+			$output->write("\t" . get_class($migration) . "\t");
+			try {
+				$migration->run('up');
+				$output->writeln('<info>ok</info>');
+			} catch (Exception $e) {
+				$output->writeln('<error>' . $e->getMessage() . 'k</info>');
+				return 0;
+			}
+		}
+		$output->writeln('Database up-to-date' );
 		return 1;
 	}
 }
