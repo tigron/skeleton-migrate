@@ -1,6 +1,6 @@
 <?php
 /**
- * migration:create command for Skeleton Console
+ * migration:status command for Skeleton Console
  *
  * @author Gerry Demaret <gerry@tigron.be>
  * @author Christophe Gosiau <christophe@tigron.be>
