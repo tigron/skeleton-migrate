@@ -41,9 +41,9 @@ class Migrate_Run extends \Skeleton\Console\Command {
 		$migration = \Skeleton\Database\Migration::get_by_version($input->getArgument('name'));
 		try {
 			$migration->up();
-			$output->writeln(get_class($migration) . "\t" . ' <info>done</info>');
+			$output->writeln(get_class($migration) . "\t" . ' <info>ok</info>');
 		} catch (\Exception $e) {
-			$output->writeln(get_class($migration) . "\t" . ' <error>error</error>' . "\t" . $e->getMessage());
+			$output->writeln(get_class($migration) . "\t" . ' <error>' . $e->getMessage() . '</error>');
 			return 1;
 		}
 
