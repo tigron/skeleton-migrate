@@ -54,7 +54,7 @@ class Migrate_Up extends \Skeleton\Console\Command {
 				$migration->run('up');
 				$output->writeln('<info>ok</info>');
 			} catch (Exception $e) {
-				$output->writeln('<error>' . $e->getMessage() . 'k</info>');
+				$output->writeln('<error>' . $e->getMessage() . '</info>');
 				return 0;
 			}
 		}
