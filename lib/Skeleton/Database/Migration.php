@@ -9,6 +9,7 @@
 namespace Skeleton\Database;
 
 use Skeleton\Database\Migration\Config;
+use Skeleton\Database\Migration\Runner;
 
 class Migration {
 
@@ -31,8 +32,28 @@ class Migration {
 	 * @param string up/down
 	 */
 	public function run($method) {
-		$this->$method();
-		file_put_contents(Config::$migration_directory . '/db_version', $this->get_version()->format('Ymd His'));
+//		$this->$method();
+		$reflection = new \ReflectionClass($this);
+		$packages = \Skeleton\Core\Package::get_all();
+		$filename = $reflection->getFileName();
+
+		if (dirname($filename) == dirname(Config::$migration_directory . '/db_version')) {
+			Runner::set_version('project', $this->get_version());
+			return;
+		}
+
+		$migration_package = null;
+		foreach ($packages as $package) {
+			if (strpos($package->migration_path, dirname($filename)) === 0) {
+				$migration_package = $package;
+			}
+		}
+
+		if ($migration_package === null) {
+			throw new \Exception('No package found');
+		}
+
+		Runner::set_version($migration_package->name, $this->get_version());
 	}
 
 	/**
@@ -43,8 +64,9 @@ class Migration {
 	 * @param Datetime $end_date
 	 * @return array $migrations
 	 */
-	public static function get_between_versions(\Datetime $start_date = null, \Datetime $end_date = null) {
-		$migrations = self::get_all();
+	public static function get_between_versions($package = 'project', \Datetime $start_date = null, \Datetime $end_date = null) {
+		$migrations = self::get_by_package($package);
+
 		foreach ($migrations as $key => $migration) {
 			if ($start_date !== null) {
 				if ($migration->get_version() <= $start_date) {
@@ -88,7 +110,7 @@ class Migration {
 	 * @access public
 	 * @return array $migrations
 	 */
-	public static function get_all() {
+	public static function get_by_package($package_name = 'project') {
 		if (!file_exists(Config::$migration_directory)) {
 			throw new \Exception('Config::$migration_directory is not set to a valid directory');
 		}
@@ -98,37 +120,87 @@ class Migration {
 		 */
 		$migrations = [];
 
-		/**
-		 * Make a list of all migrations to be execute
-		 */
-		$files = scandir(Config::$migration_directory, SCANDIR_SORT_ASCENDING);
+		if ($package_name == 'project') {
+			$files = scandir(Config::$migration_directory, SCANDIR_SORT_ASCENDING);
 
-		foreach ($files as $key => $file) {
-			if ($file[0] == '.') {
-				unset($files[$key]);
-				continue;
+			foreach ($files as $key => $file) {
+				if ($file[0] == '.') {
+					unset($files[$key]);
+					continue;
+				}
+
+				if ($file == 'db_version') {
+					unset($files[$key]);
+					continue;
+				}
+
+				if (!preg_match("/^\d{8}_\d{6}_.*$/", $file)) {
+					unset($files[$key]);
+					continue;
+				}
+
+
+				$parts = explode('_', $file);
+				foreach ($parts as $key => $part) {
+					$parts[$key] = ucfirst($part);
+				}
+
+				$classname = 'Migration_' . str_replace('.php', '', implode('_', $parts));
+				include_once Config::$migration_directory . '/' . $file;
+				$migrations[] = new $classname();
 			}
+		} else {
 
-			if ($file == 'db_version') {
-				unset($files[$key]);
-				continue;
+			/**
+			 * Make a list of all migrations to be execute
+			 */
+			$packages = \Skeleton\Core\Package::get_all();
+
+			foreach ($packages as $package) {
+				if ($package->name != $package_name) {
+					continue;
+				}
+				if (!file_exists($package->migration_path)) {
+					continue;
+				}
+				$files = scandir($package->migration_path, SCANDIR_SORT_ASCENDING);
+
+				foreach ($files as $key => $file) {
+					if ($file[0] == '.') {
+						unset($files[$key]);
+						continue;
+					}
+
+					if ($file == 'db_version') {
+						unset($files[$key]);
+						continue;
+					}
+
+					if (!preg_match("/^\d{8}_\d{6}_.*$/", $file)) {
+						unset($files[$key]);
+						continue;
+					}
+
+
+					$parts = explode('_', $file);
+					foreach ($parts as $key => $part) {
+						$parts[$key] = ucfirst($part);
+					}
+
+					$namespace_parts = explode('-', $package->name);
+					foreach ($namespace_parts as $key => $namespace_part) {
+						$namespace_parts[$key] = ucfirst($namespace_part);
+					}
+					$namespace = implode('\\', $namespace_parts);
+
+					$classname = $namespace . '\Migration_' . str_replace('.php', '', implode('_', $parts));
+					include_once $package->migration_path . '/' . $file;
+					$migrations[] = new $classname();
+				}
 			}
-
-			if (!preg_match("/^\d{8}_\d{6}_.*$/", $file)) {
-				unset($files[$key]);
-				continue;
-			}
-
-
-			$parts = explode('_', $file);
-			foreach ($parts as $key => $part) {
-				$parts[$key] = ucfirst($part);
-			}
-
-			$classname = 'Migration_' . str_replace('.php', '', implode('_', $parts));
-			include_once Config::$migration_directory . '/' . $file;
-			$migrations[] = new $classname();
 		}
+
+
 		return $migrations;
 	}
 

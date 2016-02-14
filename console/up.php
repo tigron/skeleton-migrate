@@ -43,19 +43,22 @@ class Migrate_Up extends \Skeleton\Console\Command {
 
 		$migrations = \Skeleton\Database\Migration\Runner::get_runnable();
 
-		if (count($migrations) == 0) {
-			$output->writeln('Database up-to-date' );
-			return 1;
-		}
 
-		foreach ($migrations as $migration) {
-			$output->write("\t" . get_class($migration) . "\t");
-			try {
-				$migration->run('up');
-				$output->writeln('<info>ok</info>');
-			} catch (Exception $e) {
-				$output->writeln('<error>' . $e->getMessage() . '</info>');
-				return 0;
+		foreach ($migrations as $package => $package_migrations) {
+			if (count($package_migrations) == 0) {
+				continue;
+			}
+
+			$output->writeln("\t" . $package);
+			foreach ($package_migrations as $package_migration) {
+				$output->write("\t\t" . get_class($package_migration) . "\t");
+				try {
+					$package_migration->run('up');
+					$output->writeln('<info>ok</info>');
+				} catch (Exception $e) {
+					$output->writeln('<error>' . $e->getMessage() . '</info>');
+					return 0;
+				}
 			}
 		}
 		$output->writeln('Database up-to-date' );

@@ -6,7 +6,7 @@
  * @author Christophe Gosiau <christophe@tigron.be>
  * @author David Vandemaele <david@tigron.be>
  */
-
+%%namespace%%
 class %%classname%% extends \Skeleton\Database\Migration {
 
 	/**

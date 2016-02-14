@@ -18,17 +18,42 @@ class Runner {
 	 * @access private
 	 * @return Datetime $version
 	 */
-	public static function get_version() {
+	public static function get_version($package = 'project') {
 		if (!file_exists(Config::$migration_directory . '/db_version')) {
 			touch(Config::$migration_directory . '/db_version');
 		}
 
-		$current_version = trim(file_get_contents(Config::$migration_directory . '/db_version'));
-		if (empty($current_version)) {
+		$version_file = trim(file_get_contents(Config::$migration_directory . '/db_version'));
+
+		$version = json_decode($version_file, true);
+		if ($version === null) {
+			// This is an ond db_version file, let's update it
+			$version = [
+				'project' => $version_file
+			];
+			file_put_contents(Config::$migration_directory . '/db_version', json_encode($version));
+		}
+
+		if (empty($version[$package])) {
 			return null;
 		}
 
-		return \DateTime::createFromFormat('Ymd His', $current_version);
+		return \DateTime::createFromFormat('Ymd His', $version[$package]);
+	}
+
+	/**
+	 * Set a version
+	 *
+	 * @access public
+	 * @param string $package
+	 * @param Datetime $version
+	 */
+	public static function set_version($package = 'project', \Datetime  $version) {
+		self::get_version($package);
+		$version_file = trim(file_get_contents(Config::$migration_directory . '/db_version'));
+		$versions = json_decode($version_file, true);
+		$versions[$package] = $version->format('Ymd His');
+		file_put_contents(Config::$migration_directory . '/db_version', json_encode($versions));
 	}
 
 	/**
@@ -38,7 +63,16 @@ class Runner {
 	 * @return array $migrations
 	 */
 	public static function get_runnable() {
-		$migrations = \Skeleton\Database\Migration::get_between_versions(self::get_version(), null);
+		$packages = [];
+		$packages[] = 'project';
+		foreach (\Skeleton\Core\Package::get_all() as $package) {
+			$packages[] = $package->name;
+		}
+		$migrations = [];
+		foreach ($packages as $package) {
+			$migrations[$package] = \Skeleton\Database\Migration::get_between_versions($package, self::get_version($package), null);
+		}
+
 		return $migrations;
 	}
 }
