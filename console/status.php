@@ -39,13 +39,19 @@ class Migrate_Status extends \Skeleton\Console\Command {
 			return 1;
 		}
 
-		$migrations = \Skeleton\Database\Migration::get_between_versions(\Skeleton\Database\Migration\Runner::get_version(), null);
-		if (count($migrations) > 0) {
-			$output->writeln('There are ' . count($migrations) . ' outstanding migrations:');
-			foreach ($migrations as $migration) {
-				$output->writeln("\t" . get_class($migration));
+		$migrations = \Skeleton\Database\Migration\Runner::get_runnable();
+
+		$migration_count = 0;
+		foreach ($migrations as $package => $package_migrations) {
+			if (count($package_migrations) > 0) {
+				$output->writeln('Package ' . $package . ' has outstanding migrations:');
 			}
-		} else {
+			foreach ($package_migrations as $package_migration) {
+				$migration_count++;
+				$output->writeln("\t" . get_class($package_migration));
+			}
+		}
+		if ($migration_count == 0) {
 			$output->writeln('Database is up-to-date');
 		}
 		return 0;

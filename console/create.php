@@ -39,17 +39,84 @@ class Migrate_Create extends \Skeleton\Console\Command {
 			throw new \Exception('Config::$migration_directory is not set to a valid directory');
 		}
 
-		$template = file_get_contents(__DIR__ . '/../template/migration.php');
 		$name = $input->getArgument('name');
+
+		if (strpos($name, "\\") !== false) {
+			$name = str_replace('\\', '/', $name);
+		}
+
+		if (strpos($name, '/') === false) {
+			$path = $this->create_project_migration($name);
+		} else {
+			$path = $this->create_package_migration($name);
+		}
+
+		$output->writeln('New migration template created at ' . $path );
+	}
+
+	/**
+	 * Create package migration
+	 *
+	 * @access private
+	 * @param string $name
+	 * @return string $path
+	 */
+	private function create_package_migration($name) {
+		list($packagename, $name) = explode('/', $name);
+
+		$skeleton_packages = \Skeleton\Core\Package::get_all();
+		$package = null;
+		foreach ($skeleton_packages as $skeleton_package) {
+			if ($skeleton_package->name == $packagename) {
+				$package = $skeleton_package;
+			}
+		}
+
+		if ($package === null) {
+			throw new \Exception('Package ' . $packagename . ' not found');
+		}
+
+		if (!file_exists($package->migration_path)) {
+			mkdir($package->migration_path);
+		}
+
 		$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
 		$datetime = date('Ymd_His');
 		$filename = $datetime . '_' . strtolower($name) . '.php';
 		$classname = 'Migration_' . $datetime . '_' . ucfirst($name);
 
+		$namespace_parts = explode('-', $package->name);
+		foreach ($namespace_parts as $key => $namespace_part) {
+			$namespace_parts[$key] = ucfirst($namespace_part);
+		}
+		$namespace = implode('\\', $namespace_parts);
+
+		$template = file_get_contents(__DIR__ . '/../template/migration.php');
+		$template = str_replace('%%namespace%%', 'namespace ' . $namespace . ';' . "\n", $template);
+		$template = str_replace('%%classname%%', $classname, $template);
+		file_put_contents($package->migration_path . '/' . $filename, $template);
+		return $package->migration_path . '/' . $filename;
+	}
+
+	/**
+	 * Create project migration
+	 *
+	 * @access private
+	 * @param string $name
+	 * @return string $path
+	 */
+	private function create_project_migration($name) {
+		$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
+
+		$datetime = date('Ymd_His');
+		$filename = $datetime . '_' . strtolower($name) . '.php';
+		$classname = 'Migration_' . $datetime . '_' . ucfirst($name);
+
+		$template = file_get_contents(__DIR__ . '/../template/migration.php');
+		$template = str_replace('%%namespace%%', '', $template);
 		$template = str_replace('%%classname%%', $classname, $template);
 		file_put_contents(\Skeleton\Database\Migration\Config::$migration_directory . '/' . $filename, $template);
-
-		$output->writeln('New migration template created at ' . \Skeleton\Database\Migration\Config::$migration_directory . '/' . $filename );
+		return \Skeleton\Database\Migration\Config::$migration_directory . '/' . $filename;
 	}
 }
