@@ -32,7 +32,7 @@ class Migration {
 	 * @param string up/down
 	 */
 	public function run($method) {
-//		$this->$method();
+		$this->$method();
 		$reflection = new \ReflectionClass($this);
 		$packages = \Skeleton\Core\Package::get_all();
 		$filename = $reflection->getFileName();
