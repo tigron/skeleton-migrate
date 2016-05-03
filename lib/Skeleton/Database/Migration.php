@@ -34,7 +34,7 @@ class Migration {
 	public function run($method) {
 		$this->$method();
 		$reflection = new \ReflectionClass($this);
-		$packages = \Skeleton\Core\Package::get_all();
+		$packages = \Skeleton\Core\Skeleton::get_all();
 		$filename = $reflection->getFileName();
 
 		if (dirname($filename) == dirname(Config::$migration_directory . '/db_version')) {
