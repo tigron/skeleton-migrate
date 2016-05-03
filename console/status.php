@@ -48,7 +48,18 @@ class Migrate_Status extends \Skeleton\Console\Command {
 			}
 			foreach ($package_migrations as $package_migration) {
 				$migration_count++;
-				$output->writeln("\t" . get_class($package_migration));
+
+
+				if (preg_match('@\\\\([\w]+)$@', get_class($package_migration), $matches)) {
+					$classname = $matches[1];
+				} else {
+					$classname = get_class($package_migration);
+				}
+				if ($package == 'project') {
+					$output->writeln("\t" . $classname);
+				} else {
+					$output->writeln("\t" . $package . '/' . $classname);
+				}
 			}
 		}
 		if ($migration_count == 0) {
