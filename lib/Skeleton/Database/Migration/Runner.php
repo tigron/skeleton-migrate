@@ -65,7 +65,7 @@ class Runner {
 	public static function get_runnable() {
 		$packages = [];
 		$packages[] = 'project';
-		foreach (\Skeleton\Core\Package::get_all() as $package) {
+		foreach (\Skeleton\Core\Skeleton::get_all() as $package) {
 			$packages[] = $package->name;
 		}
 		$migrations = [];

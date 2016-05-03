@@ -87,6 +87,27 @@ class Migration {
 	}
 
 	/**
+	 * Get all
+	 *
+	 * @access public
+	 * @return array $migrations
+	 */
+	public static function get_all() {
+		$packages = [];
+		$packages[] = 'project';
+		foreach (\Skeleton\Core\Skeleton::get_all() as $package) {
+			$packages[] = $package->name;
+		}
+		$migrations = [];
+		foreach ($packages as $package) {
+			$migrations[$package] = \Skeleton\Database\Migration::get_between_versions($package);
+		}
+
+		return $migrations;
+	}
+
+
+	/**
 	 * Get specific version
 	 *
 	 * @access public
@@ -95,10 +116,24 @@ class Migration {
 	 */
 	public static function get_by_version($version) {
 		$migrations = self::get_all();
-		foreach ($migrations as $key => $migration) {
-			if ($migration->get_version()->format('Ymd_His') == $version) {
+
+		if (strpos($version, '/') === false) {
+			$version = 'project/' . $version;
+		}
+
+		list($package, $version) = explode('/', $version);
+		$migrations = \Skeleton\Database\Migration::get_between_versions($package);
+
+		foreach ($migrations as $migration) {
+			if (preg_match('@\\\\([\w]+)$@', get_class($migration), $matches)) {
+				$classname = $matches[1];
+			} else {
+				$classname = get_class($migration);
+			}
+			if ($version == $classname) {
 				return $migration;
 			}
+
 		}
 
 		throw new \Exception('The specified version does not exists.');
@@ -154,7 +189,7 @@ class Migration {
 			/**
 			 * Make a list of all migrations to be execute
 			 */
-			$packages = \Skeleton\Core\Package::get_all();
+			$packages = \Skeleton\Core\Skeleton::get_all();
 
 			foreach ($packages as $package) {
 				if ($package->name != $package_name) {

@@ -64,7 +64,7 @@ class Migrate_Create extends \Skeleton\Console\Command {
 	private function create_package_migration($name) {
 		list($packagename, $name) = explode('/', $name);
 
-		$skeleton_packages = \Skeleton\Core\Package::get_all();
+		$skeleton_packages = \Skeleton\Core\Skeleton::get_all();
 		$package = null;
 		foreach ($skeleton_packages as $skeleton_package) {
 			if ($skeleton_package->name == $packagename) {
