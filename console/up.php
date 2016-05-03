@@ -43,7 +43,6 @@ class Migrate_Up extends \Skeleton\Console\Command {
 
 		$migrations = \Skeleton\Database\Migration\Runner::get_runnable();
 
-
 		foreach ($migrations as $package => $package_migrations) {
 			if (count($package_migrations) == 0) {
 				continue;
@@ -55,8 +54,8 @@ class Migrate_Up extends \Skeleton\Console\Command {
 				try {
 					$package_migration->run('up');
 					$output->writeln('<info>ok</info>');
-				} catch (Exception $e) {
-					$output->writeln('<error>' . $e->getMessage() . '</info>');
+				} catch (\Exception $e) {
+					$output->writeln('<error>' . $e->getMessage() . '</error>');
 					return 0;
 				}
 			}
