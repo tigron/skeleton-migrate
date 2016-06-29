@@ -56,11 +56,11 @@ class Migrate_Up extends \Skeleton\Console\Command {
 					$output->writeln('<info>ok</info>');
 				} catch (\Exception $e) {
 					$output->writeln('<error>' . $e->getMessage() . '</error>');
-					return 0;
+					return 1;
 				}
 			}
 		}
 		$output->writeln('Database up-to-date' );
-		return 1;
+		return 0;
 	}
 }
