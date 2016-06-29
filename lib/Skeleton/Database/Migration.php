@@ -37,7 +37,7 @@ class Migration {
 		$packages = \Skeleton\Core\Skeleton::get_all();
 		$filename = $reflection->getFileName();
 
-		if (dirname($filename) == dirname(Config::$migration_directory . '/db_version')) {
+		if (dirname($filename) == dirname(Config::$migration_directory)) {
 			Runner::set_version('project', $this->get_version());
 			return;
 		}
