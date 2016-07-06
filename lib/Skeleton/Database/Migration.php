@@ -37,7 +37,13 @@ class Migration {
 		$packages = \Skeleton\Core\Skeleton::get_all();
 		$filename = $reflection->getFileName();
 
-		if (dirname($filename) == dirname(Config::$migration_directory)) {
+		if (substr(Config::$migration_directory, -1) == '/') {
+			$migration_directory = substr(Config::$migration_directory, 0, -1);
+		} else {
+			$migration_directory = Config::$migration_directory;
+		}
+
+		if (dirname($filename) == $migration_directory) {
 			Runner::set_version('project', $this->get_version());
 			return;
 		}
