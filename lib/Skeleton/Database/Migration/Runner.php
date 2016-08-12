@@ -37,7 +37,12 @@ class Runner {
 	 * @return Datetime $version
 	 */
 	private static function file_get_version($package) {
-		$version_file = trim(file_get_contents(Config::$migration_directory . '/db_version'));
+		if (file_exists(Config::$migration_directory . '/db_version')) {
+			$version_file = trim(file_get_contents(Config::$migration_directory . '/db_version'));
+			$version = json_decode($version_file, true);
+		} else {
+			$version = null;
+		}
 
 		$version = json_decode($version_file, true);
 		if ($version === null and file_exists(Config::$migration_directory . '/db_version')) {
