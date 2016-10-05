@@ -44,7 +44,6 @@ class Runner {
 			$version = null;
 		}
 
-		$version = json_decode($version_file, true);
 		if ($version === null and file_exists(Config::$migration_directory . '/db_version')) {
 			// This is an old db_version file, let's update it
 			$version = [
