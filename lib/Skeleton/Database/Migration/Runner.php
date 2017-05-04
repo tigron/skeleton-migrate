@@ -129,8 +129,14 @@ class Runner {
 	 */
 	private static function file_set_version($package, \Datetime $version) {
 		self::get_version($package);
-		$version_file = trim(file_get_contents(Config::$migration_directory . '/db_version'));
-		$versions = json_decode($version_file, true);
+
+		if (file_exists(Config::$migration_directory . '/db_version')) {
+			$version_file = trim(file_get_contents(Config::$migration_directory . '/db_version'));
+			$versions = json_decode($version_file, true);
+		} else {
+			$versions = [];
+		}
+
 		$versions[$package] = $version->format('Ymd His');
 		file_put_contents(Config::$migration_directory . '/db_version', json_encode($versions));
 	}
