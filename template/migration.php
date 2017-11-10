@@ -8,6 +8,9 @@
  * @author Lionel Laffineur <lionel@tigron.be>
  */
 %%namespace%%
+
+use \Skeleton\Database\Database;
+
 class %%classname%% extends \Skeleton\Database\Migration {
 
 	/**
