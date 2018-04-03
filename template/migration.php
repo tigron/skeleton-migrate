@@ -2,10 +2,6 @@
 /**
  * Database migration class
  *
- * @author Gerry Demaret <gerry@tigron.be>
- * @author Christophe Gosiau <christophe@tigron.be>
- * @author David Vandemaele <david@tigron.be>
- * @author Lionel Laffineur <lionel@tigron.be>
  */
 %%namespace%%
 
