@@ -39,6 +39,11 @@ class Migrate_Up extends \Skeleton\Console\Command {
 			return 1;
 		}
 
+		if (isset(\Skeleton\Object\Config::$cache_handler) AND \Skeleton\Object\Config::$cache_handler != '') {
+			$output->writeln('Flush cache');
+			\Skeleton\Object\Cache::cache_flush();
+		}
+
 		$output->writeln('Running migrations');
 
 		$migrations = \Skeleton\Database\Migration\Runner::get_runnable();
