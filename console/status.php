@@ -65,9 +65,7 @@ class Migrate_Status extends \Skeleton\Console\Command {
 			}
 			$output->writeln("\t" . $package . ' / ' . $classname);
 		}
-		if ($migration_count == 0) {
-			$output->writeln('Database is up-to-date');
-		}
+
 		return 0;
 	}
 }
