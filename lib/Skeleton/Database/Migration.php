@@ -26,6 +26,26 @@ class Migration {
 	}
 
 	/**
+	 * Get package
+	 *
+	 * @access public
+	 * @return \Skeleton\Core\Skeleton $skeleton
+	 */
+	public function get_skeleton() {
+		$packages = \Skeleton\Core\Skeleton::get_all();
+		$reflection = new \ReflectionClass(get_class($this));
+		$filename = $reflection->getFileName();
+
+		foreach ($packages as $package) {
+			if (strpos($package->migration_path, dirname($filename)) === 0) {
+				return $package;
+			}
+		}
+		throw new \Exception('This migration is not part of a skeleton-package');
+	}
+
+
+	/**
 	 * Run
 	 *
 	 * @access public
@@ -89,7 +109,6 @@ class Migration {
 			}
 		}
 		return $migrations;
-
 	}
 
 	/**

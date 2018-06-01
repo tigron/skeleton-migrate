@@ -45,26 +45,32 @@ class Migrate_Up extends \Skeleton\Console\Command {
 		}
 
 		$output->writeln('Running migrations');
-
 		$migrations = \Skeleton\Database\Migration\Runner::get_runnable();
 
-		foreach ($migrations as $package => $package_migrations) {
-			if (count($package_migrations) == 0) {
-				continue;
+		foreach ($migrations as $migration) {
+			try {
+				$package = $migration->get_skeleton();
+				$package = $package->name;
+			} catch (\Exception $e) {
+				$package = 'project';
 			}
 
-			$output->writeln("\t" . $package);
-			foreach ($package_migrations as $package_migration) {
-				$output->write("\t\t" . get_class($package_migration) . "\t");
-				try {
-					$package_migration->run('up');
-					$output->writeln('<info>ok</info>');
-				} catch (\Exception $e) {
-					$output->writeln('<error>' . $e->getMessage() . '</error>');
-					return 1;
-				}
+
+			if (preg_match('@\\\\([\w]+)$@', get_class($migration), $matches)) {
+				$classname = $matches[1];
+			} else {
+				$classname = get_class($migration);
+			}
+			$output->write("\t" . $package . ' / ' . $classname . ' ');
+			try {
+				$migration->run('up');
+				$output->writeln('<info>ok</info>');
+			} catch (\Exception $e) {
+				$output->writeln('<error>' . $e->getMessage() . '</error>');
+				return 1;
 			}
 		}
+
 		$output->writeln('Database up-to-date' );
 		return 0;
 	}

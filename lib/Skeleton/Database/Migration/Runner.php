@@ -182,6 +182,15 @@ class Runner {
 			$migrations[$package] = \Skeleton\Database\Migration::get_between_versions($package, self::get_version($package), null);
 		}
 
-		return $migrations;
+		$sorted_migrations = [];
+
+		foreach ($migrations as $package_migrations) {
+			foreach ($package_migrations as $migration) {
+				$sorted_migrations[$migration->get_version()->format('YmdHis')] = $migration;
+			}
+		}
+		ksort($sorted_migrations);
+
+		return $sorted_migrations;
 	}
 }

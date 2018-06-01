@@ -41,26 +41,29 @@ class Migrate_Status extends \Skeleton\Console\Command {
 
 		$migrations = \Skeleton\Database\Migration\Runner::get_runnable();
 
+		if (count($migrations) > 0) {
+			$output->writeln('There are ' . count($migrations) . ' outstanding migrations:');
+		} else {
+			$output->writeln('Database is up-to-date');
+		}
+
+
 		$migration_count = 0;
-		foreach ($migrations as $package => $package_migrations) {
-			if (count($package_migrations) > 0) {
-				$output->writeln('Package ' . $package . ' has outstanding migrations:');
+		foreach ($migrations as $migration) {
+			try {
+				$package = $migration->get_skeleton();
+				$package = $package->name;
+			} catch (\Exception $e) {
+				$package = 'project';
 			}
-			foreach ($package_migrations as $package_migration) {
-				$migration_count++;
 
 
-				if (preg_match('@\\\\([\w]+)$@', get_class($package_migration), $matches)) {
-					$classname = $matches[1];
-				} else {
-					$classname = get_class($package_migration);
-				}
-				if ($package == 'project') {
-					$output->writeln("\t" . $classname);
-				} else {
-					$output->writeln("\t" . $package . '/' . $classname);
-				}
+			if (preg_match('@\\\\([\w]+)$@', get_class($migration), $matches)) {
+				$classname = $matches[1];
+			} else {
+				$classname = get_class($migration);
 			}
+			$output->writeln("\t" . $package . ' / ' . $classname);
 		}
 		if ($migration_count == 0) {
 			$output->writeln('Database is up-to-date');

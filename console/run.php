@@ -39,6 +39,7 @@ class Migrate_Run extends \Skeleton\Console\Command {
 		}
 
 		$migration = \Skeleton\Database\Migration::get_by_version($input->getArgument('name'));
+
 		try {
 			$migration->up();
 			$output->writeln(get_class($migration) . "\t" . ' <info>ok</info>');
