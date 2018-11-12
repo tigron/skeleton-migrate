@@ -45,6 +45,7 @@ class Migrate_Run extends \Skeleton\Console\Command {
 			$output->writeln(get_class($migration) . "\t" . ' <info>ok</info>');
 		} catch (\Exception $e) {
 			$output->writeln(get_class($migration) . "\t" . ' <error>' . $e->getMessage() . '</error>');
+			$output->writeln('<comment>' . $e->getTraceAsString() . '</comment>');
 			return 1;
 		}
 
