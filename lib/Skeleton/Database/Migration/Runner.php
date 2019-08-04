@@ -72,13 +72,26 @@ class Runner {
 		}
 		$table = Config::$database_table;
 		$db = \Skeleton\Database\Database::get();
+		$table_exists = false;
+
 		try {
-			$result = $db->query('DESC ' . $table);
-		} catch (\Exception $e) {
+			$result = $db->get_columns($table);
+			if (count($result) > 0) {
+				$table_exists = true;
+			}
+		} catch (\Exception $e) {}
+
+		if ($table_exists === false) {
+			if ($db->get_dbms() == 'mysql') {
+				$dt_type = 'datetime';
+			} else {
+				$dt_type = 'timestamp';
+			}
+
 			$db->query('
-				CREATE TABLE `' . $table . '` (
-				  `package` varchar(32) NOT NULL,
-				  `version` datetime NOT NULL
+				CREATE TABLE ' . $db->quote_identifier($table) . ' (
+				  ' . $db->quote_identifier('package') . ' varchar(32) NOT NULL,
+				  ' . $db->quote_identifier('version') . ' ' . $dt_type . ' NOT NULL
 				);
 			', []);
 
@@ -96,7 +109,7 @@ class Runner {
 			}
 		}
 
-		$version = $db->get_one('SELECT version FROM `' . $table . '` WHERE package=?', [ $package ]);
+		$version = $db->get_one('SELECT version FROM ' . $db->quote_identifier($table) . ' WHERE package=?', [ $package ]);
 		if ($version === null) {
 			return null;
 		}
@@ -157,7 +170,7 @@ class Runner {
 			'version' => $version->format('Y-m-d H:i:s'),
 		];
 
-		$row = $db->get_row('SELECT * FROM `' . $table . '` WHERE package=?', [ $package ]);
+		$row = $db->get_row('SELECT * FROM ' . $db->quote_identifier($table) . ' WHERE package=?', [ $package ]);
 		if ($row === null) {
 			$db->insert($table, $data);
 		} else {
