@@ -40,8 +40,18 @@ class Migrate_Up extends \Skeleton\Console\Command {
 		}
 
 		if (isset(\Skeleton\Object\Config::$cache_handler) AND \Skeleton\Object\Config::$cache_handler != '') {
-			$output->writeln('Flush cache');
+			$output->writeln('Flush object cache');
 			\Skeleton\Object\Cache::cache_flush();
+		}
+
+		$daemon_running = false;
+
+		if (class_exists('Skeleton\Transaction\Daemon')) {
+			$daemon_running = \Skeleton\Transaction\Daemon::is_running();
+			if ($daemon_running) {
+				$output->writeln('Stopping transaction daemon');
+				\Skeleton\Transaction\Daemon::stop();
+			}
 		}
 
 		$output->writeln('Running migrations');
@@ -73,6 +83,14 @@ class Migrate_Up extends \Skeleton\Console\Command {
 		}
 
 		$output->writeln('Database up-to-date' );
+
+		if (class_exists('Skeleton\Transaction\Daemon')) {
+			if ($daemon_running) {
+				\Skeleton\Transaction\Daemon::start();
+				$output->writeln('Starting transaction daemon');
+			}
+		}
+
 		return 0;
 	}
 }
