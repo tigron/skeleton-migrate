@@ -52,6 +52,8 @@ class Migrate_Create extends \Skeleton\Console\Command {
 		}
 
 		$output->writeln('New migration template created at ' . $path );
+
+		return 0;
 	}
 
 	/**
