@@ -33,6 +33,7 @@ Remark:
 Create new migration
 ```
 skeleton migrate:create <name>
+skeleton migrate:create <package-name>/<name>
 ```
 Get status
 ```
