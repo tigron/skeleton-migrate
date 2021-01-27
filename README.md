@@ -45,5 +45,5 @@ skeleton migrate:up
 ```
 Run a specific migration (version is not stored in the version file)
 ```
-skeleton migration:run <Ymd_His>
+skeleton migrate:run <Ymd_His>
 ```
