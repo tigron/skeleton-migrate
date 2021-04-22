@@ -191,6 +191,7 @@ class Runner {
 			$packages[] = $package->name;
 		}
 		$migrations = [];
+
 		foreach ($packages as $package) {
 			$migrations[$package] = \Skeleton\Database\Migration::get_between_versions($package, self::get_version($package), null);
 		}
@@ -199,7 +200,12 @@ class Runner {
 
 		foreach ($migrations as $package_migrations) {
 			foreach ($package_migrations as $migration) {
-				$sorted_migrations[$migration->get_version()->format('YmdHis')] = $migration;
+				$version = $migration->get_version()->format('YmdHis');
+				$append = 0;
+				while (isset($sorted_migrations[$version . $append])) {
+					$append++;
+				}
+				$sorted_migrations[$version . $append] = $migration;
 			}
 		}
 		ksort($sorted_migrations);
