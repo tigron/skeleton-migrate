@@ -194,7 +194,7 @@ class Migration {
 					continue;
 				}
 
-				if (!preg_match("/^\d{8}_\d{6}_.*$/", $file)) {
+				if (!preg_match("/^\d{8}_\d{6}_.*\.php$/", $file)) {
 					unset($files[$key]);
 					continue;
 				}
