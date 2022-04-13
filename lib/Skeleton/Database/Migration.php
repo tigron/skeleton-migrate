@@ -57,13 +57,19 @@ class Migration {
 		$packages = \Skeleton\Core\Skeleton::get_all();
 		$filename = $reflection->getFileName();
 
-		if (substr(Config::$migration_directory, -1) == '/') {
-			$migration_directory = substr(Config::$migration_directory, 0, -1);
-		} else {
-			$migration_directory = Config::$migration_directory;
+		if (Config::$migration_directory !== null) {
+			Config::$migration_path = Config::$migration_directory;
+		} elseif (Config::$migration_path === null) {
+			throw new \Exception('Set a path first in "Config::$migration_path');
 		}
 
-		if (dirname($filename) == $migration_directory) {
+		if (substr(Config::$migration_path, -1) == '/') {
+			$migration_path = substr(Config::$migration_path, 0, -1);
+		} else {
+			$migration_path = Config::$migration_path;
+		}
+
+		if (dirname($filename) == $migration_path) {
 			Runner::set_version('project', $this->get_version());
 			return;
 		}
@@ -171,8 +177,14 @@ class Migration {
 	 * @return array $migrations
 	 */
 	public static function get_by_package($package_name = 'project') {
-		if (!file_exists(Config::$migration_directory)) {
-			throw new \Exception('Config::$migration_directory is not set to a valid directory');
+		if (Config::$migration_directory !== null) {
+			Config::$migration_path = Config::$migration_directory;
+		} elseif (Config::$migration_path === null) {
+			throw new \Exception('Set a path first in "Config::$migration_path');
+		}
+
+		if (!file_exists(Config::$migration_path)) {
+			throw new \Exception('Config::$migration_path is not set to a valid path');
 		}
 
 		/**
@@ -181,7 +193,7 @@ class Migration {
 		$migrations = [];
 
 		if ($package_name == 'project') {
-			$files = scandir(Config::$migration_directory, SCANDIR_SORT_ASCENDING);
+			$files = scandir(Config::$migration_path, SCANDIR_SORT_ASCENDING);
 
 			foreach ($files as $key => $file) {
 				if ($file[0] == '.') {
@@ -206,7 +218,7 @@ class Migration {
 				}
 
 				$classname = 'Migration_' . str_replace('.php', '', implode('_', $parts));
-				include_once Config::$migration_directory . '/' . $file;
+				include_once Config::$migration_path . '/' . $file;
 				$migrations[] = new $classname();
 			}
 		} else {

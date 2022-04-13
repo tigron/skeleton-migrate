@@ -37,19 +37,25 @@ class Runner {
 	 * @return Datetime $version
 	 */
 	private static function file_get_version($package) {
-		if (file_exists(Config::$migration_directory . '/db_version')) {
-			$version_file = trim(file_get_contents(Config::$migration_directory . '/db_version'));
+		if (Config::$migration_directory !== null) {
+			Config::$migration_path = Config::$migration_directory;
+		} elseif (Config::$migration_path === null) {
+			throw new \Exception('Set a path first in "Config::$migration_path');
+		}
+
+		if (file_exists(Config::$migration_path . '/db_version')) {
+			$version_file = trim(file_get_contents(Config::$migration_path . '/db_version'));
 			$version = json_decode($version_file, true);
 		} else {
 			$version = null;
 		}
 
-		if ($version === null and file_exists(Config::$migration_directory . '/db_version')) {
+		if ($version === null and file_exists(Config::$migration_path . '/db_version')) {
 			// This is an old db_version file, let's update it
 			$version = [
 				'project' => $version_file
 			];
-			file_put_contents(Config::$migration_directory . '/db_version', json_encode($version));
+			file_put_contents(Config::$migration_path . '/db_version', json_encode($version));
 		}
 
 		if (empty($version[$package])) {
@@ -143,15 +149,21 @@ class Runner {
 	private static function file_set_version($package, \Datetime $version) {
 		self::get_version($package);
 
-		if (file_exists(Config::$migration_directory . '/db_version')) {
-			$version_file = trim(file_get_contents(Config::$migration_directory . '/db_version'));
+		if (Config::$migration_directory !== null) {
+			Config::$migration_path = Config::$migration_directory;
+		} elseif (Config::$migration_path === null) {
+			throw new \Exception('Set a path first in "Config::$migration_path');
+		}
+
+		if (file_exists(Config::$migration_path . '/db_version')) {
+			$version_file = trim(file_get_contents(Config::$migration_path . '/db_version'));
 			$versions = json_decode($version_file, true);
 		} else {
 			$versions = [];
 		}
 
 		$versions[$package] = $version->format('Ymd His');
-		file_put_contents(Config::$migration_directory . '/db_version', json_encode($versions));
+		file_put_contents(Config::$migration_path . '/db_version', json_encode($versions));
 	}
 
 	/**

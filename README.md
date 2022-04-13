@@ -12,9 +12,13 @@ Installation via composer:
 
 ## Howto
 
-Set the directory for migrations
+Set the path for migrations
 
-    \Skeleton\Database\Migration\Config::$migration_directory  = $some_very_cool_directory;
+    /**
+     * \Skeleton\Database\Migration\Config::$migration_directory is deprecated
+     * Use \Skeleton\Database\Migration\Config::$migration_path instead
+     */
+    \Skeleton\Database\Migration\Config::$migration_path = $some_very_cool_path;
 
 Choose where you want to store the version
 
