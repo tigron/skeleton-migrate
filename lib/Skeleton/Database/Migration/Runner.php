@@ -6,9 +6,9 @@
  * @author Gerry Demaret <gerry@tigron.be>
  */
 
-use \Skeleton\Database\Database;
-
 namespace Skeleton\Database\Migration;
+
+use \Skeleton\Database\Database;
 
 class Runner {
 
