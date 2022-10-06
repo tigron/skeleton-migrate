@@ -121,7 +121,7 @@ class Migrate_Create extends \Skeleton\Console\Command {
 		$template = file_get_contents(__DIR__ . '/../template/migration.php');
 		$template = str_replace('%%namespace%%', '', $template);
 		$template = str_replace('%%classname%%', $classname, $template);
-		file_put_contents(\Skeleton\Database\Migration\Config::$$migration_path . '/' . $filename, $template);
-		return \Skeleton\Database\Migration\Config::$$migration_path . '/' . $filename;
+		file_put_contents(Config::$migration_path . '/' . $filename, $template);
+		return Config::$migration_path . '/' . $filename;
 	}
 }
