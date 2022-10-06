@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Skeleton\Database\Migration\Config;
 
 class Migrate_Status extends \Skeleton\Console\Command {
 
@@ -34,8 +35,10 @@ class Migrate_Status extends \Skeleton\Console\Command {
 	 * @param OutputInterface $output
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
-		if (!file_exists(\Skeleton\Database\Migration\Config::$migration_directory)) {
-			$output->writeln('<error>Config::$migration_directory is not set to a valid directory</error>');
+		if (Config::$migration_directory !== null) {
+			Config::$migration_path = Config::$migration_directory;
+		} elseif (Config::$migration_path === null) {
+			$output->writeln('<error>Config::$migration_path is not set to a valid path</error>');
 			return 1;
 		}
 

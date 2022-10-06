@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Skeleton\Database\Migration\Config;
 
 class Migrate_Create extends \Skeleton\Console\Command {
 
@@ -35,8 +36,10 @@ class Migrate_Create extends \Skeleton\Console\Command {
 	 * @param OutputInterface $output
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
-		if (!file_exists(\Skeleton\Database\Migration\Config::$migration_directory)) {
-			throw new \Exception('Config::$migration_directory is not set to a valid directory');
+		if (Config::$migration_directory !== null) {
+			Config::$migration_path = Config::$migration_directory;
+		} elseif (Config::$migration_path === null) {
+			throw new \Exception('Set a path first in "Config::$migration_path');
 		}
 
 		$name = $input->getArgument('name');
@@ -118,7 +121,7 @@ class Migrate_Create extends \Skeleton\Console\Command {
 		$template = file_get_contents(__DIR__ . '/../template/migration.php');
 		$template = str_replace('%%namespace%%', '', $template);
 		$template = str_replace('%%classname%%', $classname, $template);
-		file_put_contents(\Skeleton\Database\Migration\Config::$migration_directory . '/' . $filename, $template);
-		return \Skeleton\Database\Migration\Config::$migration_directory . '/' . $filename;
+		file_put_contents(\Skeleton\Database\Migration\Config::$$migration_path . '/' . $filename, $template);
+		return \Skeleton\Database\Migration\Config::$$migration_path . '/' . $filename;
 	}
 }
