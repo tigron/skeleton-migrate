@@ -14,7 +14,7 @@ class %%classname%% extends \Skeleton\Database\Migration {
 	 *
 	 * @access public
 	 */
-	public function up() {
+	public function up(): void {
 		$db = Database::get();
 	}
 
@@ -23,7 +23,7 @@ class %%classname%% extends \Skeleton\Database\Migration {
 	 *
 	 * @access public
 	 */
-	public function down() {
+	public function down(): void {
 
 	}
 }
