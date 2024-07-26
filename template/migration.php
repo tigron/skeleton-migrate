@@ -27,6 +27,5 @@ class %%classname%% extends \Skeleton\Database\Migration {
 	 * @access public
 	 */
 	public function down(): void {
-
 	}
 }
