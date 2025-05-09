@@ -33,14 +33,14 @@ class Migrate_Run extends \Skeleton\Console\Command {
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
 	 */
-	protected function execute(InputInterface $input, OutputInterface $output) {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		if (Config::$migration_directory !== null) {
 			Config::$migration_path = Config::$migration_directory;
 		} elseif (Config::$migration_path === null) {
 			$output->writeln('<error>Config::$migration_path is not set to a valid migration_path</error>');
 			return 1;
 		}
-		
+
 		$migration = \Skeleton\Database\Migration::get_by_version($input->getArgument('name'));
 
 		try {
