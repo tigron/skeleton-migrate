@@ -34,7 +34,7 @@ class Migrate_Up extends \Skeleton\Console\Command {
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
 	 */
-protected function execute(InputInterface $input, OutputInterface $output): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		if (Config::$migration_directory !== null) {
 			Config::$migration_path = Config::$migration_directory;
 		} elseif (Config::$migration_path === null) {
