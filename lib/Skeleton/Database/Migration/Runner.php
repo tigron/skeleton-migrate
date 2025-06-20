@@ -129,7 +129,7 @@ class Runner {
 	 * @param string $package
 	 * @param Datetime $version
 	 */
-	public static function set_version($package = 'project', \Datetime  $version) {
+	public static function set_version($package, \Datetime  $version) {
 		if (Config::$version_storage == 'file') {
 			return self::file_set_version($package, $version);
 		} elseif (Config::$version_storage == 'database') {
