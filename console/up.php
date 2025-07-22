@@ -44,7 +44,8 @@ class Migrate_Up extends \Skeleton\Console\Command {
 
 		if (isset(\Skeleton\Object\Config::$cache_handler) AND \Skeleton\Object\Config::$cache_handler != '') {
 			$output->writeln('Flush object cache');
-			\Skeleton\Object\Cache::cache_flush();
+			$handler = '\Skeleton\Object\Cache\Handler\\' . \Skeleton\Object\Config::$cache_handler;
+			$handler::flush();
 		}
 
 		$daemon_running = false;
