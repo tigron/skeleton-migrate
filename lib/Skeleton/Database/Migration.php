@@ -4,6 +4,7 @@
  *
  * @author Christophe Gosiau <christophe@tigron.be>
  * @author Gerry Demaret <gerry@tigron.be>
+ * @author David Vandemaele <david@tigron.be>
  */
 
 namespace Skeleton\Database;
@@ -17,9 +18,9 @@ class Migration {
 	 * Get version
 	 *
 	 * @access public
-	 * @return Datetime $version
+	 * @return \Datetime $version
 	 */
-	public function get_version() {
+	public function get_version(): \Datetime {
 		$classname = get_class($this); // Migration_20150922_203123_Init
 		list($migration, $date, $time, $name) = explode('_', $classname);
 		return \Datetime::createFromFormat('YmdHis', $date . $time);
@@ -31,7 +32,7 @@ class Migration {
 	 * @access public
 	 * @return \Skeleton\Core\Skeleton $skeleton
 	 */
-	public function get_skeleton() {
+	public function get_skeleton(): \Skeleton\Core\Skeleton {
 		$packages = \Skeleton\Core\Skeleton::get_all();
 		$reflection = new \ReflectionClass(get_class($this));
 		$filename = $reflection->getFileName();
@@ -44,14 +45,13 @@ class Migration {
 		throw new \Exception('This migration is not part of a skeleton-package');
 	}
 
-
 	/**
 	 * Run
 	 *
 	 * @access public
 	 * @param string up/down
 	 */
-	public function run($method) {
+	public function run(string $method): void {
 		$this->$method();
 		$reflection = new \ReflectionClass($this);
 		$packages = \Skeleton\Core\Skeleton::get_all();
@@ -92,11 +92,12 @@ class Migration {
 	 * Get between versions
 	 *
 	 * @access public
+	 * @param string $package
 	 * @param Datetime $start_date
 	 * @param Datetime $end_date
 	 * @return array $migrations
 	 */
-	public static function get_between_versions($package = 'project', \Datetime $start_date = null, \Datetime $end_date = null) {
+	public static function get_between_versions(string $package = 'project', ?\Datetime $start_date = null, ?\Datetime $end_date = null): array {
 		$migrations = self::get_by_package($package);
 
 		foreach ($migrations as $key => $migration) {
@@ -114,6 +115,7 @@ class Migration {
 				}
 			}
 		}
+
 		return $migrations;
 	}
 
@@ -123,7 +125,7 @@ class Migration {
 	 * @access public
 	 * @return array $migrations
 	 */
-	public static function get_all() {
+	public static function get_all(): array {
 		$packages = [];
 		$packages[] = 'project';
 		foreach (\Skeleton\Core\Skeleton::get_all() as $package) {
@@ -145,7 +147,7 @@ class Migration {
 	 * @param string $version
 	 * @return Migration
 	 */
-	public static function get_by_version($version) {
+	public static function get_by_version(string $version): self {
 		$migrations = self::get_all();
 
 		if (strpos($version, '/') === false) {
@@ -164,7 +166,6 @@ class Migration {
 			if ($version == $classname) {
 				return $migration;
 			}
-
 		}
 
 		throw new \Exception('The specified version does not exists.');
@@ -176,7 +177,7 @@ class Migration {
 	 * @access public
 	 * @return array $migrations
 	 */
-	public static function get_by_package($package_name = 'project') {
+	public static function get_by_package(string $package_name = 'project'): array {
 		if (Config::$migration_directory !== null) {
 			Config::$migration_path = Config::$migration_directory;
 		} elseif (Config::$migration_path === null) {
@@ -210,7 +211,6 @@ class Migration {
 					unset($files[$key]);
 					continue;
 				}
-
 
 				$parts = explode('_', $file);
 				foreach ($parts as $key => $part) {
@@ -253,7 +253,6 @@ class Migration {
 						continue;
 					}
 
-
 					$parts = explode('_', $file);
 					foreach ($parts as $key => $part) {
 						$parts[$key] = ucfirst($part);
@@ -272,8 +271,6 @@ class Migration {
 			}
 		}
 
-
 		return $migrations;
 	}
-
 }
