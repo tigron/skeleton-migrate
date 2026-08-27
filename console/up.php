@@ -9,14 +9,11 @@
 
 namespace Skeleton\Console\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Skeleton\Database\Migration\Config;
 
 class Migrate_Up extends \Skeleton\Console\Command {
-
 	/**
 	 * Configure the Create command
 	 *
@@ -42,17 +39,18 @@ class Migrate_Up extends \Skeleton\Console\Command {
 			return 1;
 		}
 
-		if (isset(\Skeleton\Object\Config::$cache_handler) AND \Skeleton\Object\Config::$cache_handler != '') {
-			$output->writeln('Flush object cache');
-			$handler = '\Skeleton\Object\Cache\Handler\\' . \Skeleton\Object\Config::$cache_handler;
-			$handler::flush();
+		// Disable cache handler if enabled, and store for later use
+		$cache_handler = false;
+		if (isset(\Skeleton\Object\Config::$cache_handler) && \Skeleton\Object\Config::$cache_handler !== false) {
+			$cache_handler = \Skeleton\Object\Config::$cache_handler;
+			\Skeleton\Object\Config::$cache_handler = false;
 		}
 
 		$daemon_running = false;
 
-		if (class_exists('Skeleton\Transaction\Daemon')) {
+		if (class_exists('Skeleton\Transaction\Daemon') === true) {
 			$daemon_running = \Skeleton\Transaction\Daemon::is_running();
-			if ($daemon_running) {
+			if ($daemon_running === true) {
 				$output->writeln('Stopping transaction daemon');
 				\Skeleton\Transaction\Daemon::stop();
 			}
@@ -69,13 +67,13 @@ class Migrate_Up extends \Skeleton\Console\Command {
 				$package = 'project';
 			}
 
-
 			if (preg_match('@\\\\([\w]+)$@', get_class($migration), $matches)) {
 				$classname = $matches[1];
 			} else {
 				$classname = get_class($migration);
 			}
 			$output->write("\t" . $package . ' / ' . $classname . ' ');
+
 			try {
 				$migration->run('up');
 				$output->writeln('<info>ok</info>');
@@ -86,13 +84,17 @@ class Migrate_Up extends \Skeleton\Console\Command {
 			}
 		}
 
-		$output->writeln('Database up-to-date' );
+		$output->writeln('Database up-to-date');
 
-		if (class_exists('Skeleton\Transaction\Daemon')) {
-			if ($daemon_running) {
-				\Skeleton\Transaction\Daemon::start();
-				$output->writeln('Starting transaction daemon');
-			}
+		if (class_exists('Skeleton\Transaction\Daemon') === true && $daemon_running === true) {
+			\Skeleton\Transaction\Daemon::start();
+			$output->writeln('Starting transaction daemon');
+		}
+
+		if ($cache_handler !== false) {
+			$output->writeln('Flush object cache');
+			$handler = '\Skeleton\Object\Cache\Handler\\' . $cache_handler;
+			$handler::flush();
 		}
 
 		return 0;
