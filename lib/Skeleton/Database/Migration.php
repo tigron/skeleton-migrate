@@ -139,7 +139,6 @@ class Migration {
 		return $migrations;
 	}
 
-
 	/**
 	 * Get specific version
 	 *
@@ -272,5 +271,36 @@ class Migration {
 		}
 
 		return $migrations;
+	}
+
+	/**
+	 * Get migrations to purge
+	 *
+	 * @access public
+	 * @param int $months_to_keep
+	 * @return array $migrations
+	 */
+	public static function get_purgeable(int $months_to_keep = 6): array {
+		$first_day_of_this_month = new \DateTime('first day of this month');
+		$until_date = new \DateTime($first_day_of_this_month->format('Y-m-d 0:0:0') . '-' . $months_to_keep .' month');
+
+		$package_version = Runner::get_version();
+		$until_date = new \DateTime($package_version->format('Y-m-d H:i:s') . '-' . $months_to_keep .' month');
+
+		$migrations = \Skeleton\Database\Migration::get_between_versions('project', null, $until_date);
+
+		$sorted_migrations = [];
+		foreach ($migrations as $migration) {
+			$version = $migration->get_version()->format('YmdHis');
+			$append = 0;
+			while (isset($sorted_migrations[$version . $append])) {
+				$append++;
+			}
+			$sorted_migrations[$version . $append] = $migration;
+		}
+
+		ksort($sorted_migrations);
+
+		return $sorted_migrations;
 	}
 }
